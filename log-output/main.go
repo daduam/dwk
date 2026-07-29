@@ -11,7 +11,7 @@ func main() {
 	randomStr := uuid.New()
 
 	for {
-		fmt.Printf("%s: %s\n", time.Now().UTC().Format(time.RFC3339Nano), randomStr)
+		fmt.Printf("%s: %s\n", time.Now().UTC().Format(time.RFC3339), randomStr)
 		time.Sleep(5 * time.Second)
 	}
 }
