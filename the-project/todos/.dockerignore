@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Editor / IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build artifacts
+todos
+*.exe
+
+# Documentation
+README.md
+
+# Kubernetes manifests (not needed in image)
+manifests/
+
+# Docker
+Dockerfile
+.dockerignore

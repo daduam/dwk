@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: the-project-todos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: the-project-todos
+  template:
+    metadata:
+      labels:
+        app: the-project-todos
+    spec:
+      containers:
+        - name: the-project-todos
+          image: daduam/dwk-the-project-todos
+          imagePullPolicy: IfNotPresent
