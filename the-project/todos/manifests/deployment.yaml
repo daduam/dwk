@@ -16,3 +16,6 @@ spec:
         - name: the-project-todos
           image: daduam/dwk-the-project-todos
           imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "8080"
