@@ -16,3 +16,6 @@ spec:
         - name: log-output
           image: daduam/dwk-log-output
           imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "8081"

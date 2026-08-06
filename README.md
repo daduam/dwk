@@ -10,3 +10,4 @@
 * [1.4. The Project, step 2](https://github.com/daduam/dwk/tree/1.4/the-project/todos)
 * [1.5. The Project, step 3](https://github.com/daduam/dwk/tree/1.5/the-project/todos)
 * [1.6. The Project, step 4](https://github.com/daduam/dwk/tree/1.6/the-project/todos)
+* [1.7. External access with ingress](https://github.com/daduam/dwk/tree/1.7/log-output)
