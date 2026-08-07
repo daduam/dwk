@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	randomStr := uuid.New().String()
+	randomStr := uuid.New()
 
 	port := os.Getenv("PORT")
 	if port == "" {

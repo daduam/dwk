@@ -1,16 +1,17 @@
 # the-project/todos
 
-## Prerequisites: create a k3d cluster with port mapping
-
-Create a new k3d cluster with an agent node that maps host port `8080` to the
-NodePort defined in `manifests/service.yml` (port `30080`):
+## Create the k3d cluster
 
 ```bash
-k3d cluster create --agents 1 -p "8080:30080@agent:0"
+k3d cluster create dwk-cluster \
+  --agents 2 \
+  --port 8082:30080@agent:0 \
+  --port 8081:80@loadbalancer
 ```
 
-This maps host port `8080` to agent node port `30080`, so once the service is
-deployed the app will be reachable at `http://localhost:8080`.
+This creates a cluster with two agent nodes:
+- **agent-0**: NodePort 30080 mapped to host port **8082**
+- **loadbalancer**: Port 80 mapped to host port **8081**
 
 ## Build, import, and deploy
 
@@ -22,7 +23,8 @@ Deploy with `kubectl apply -f manifests`
 
 ## Access the app
 
-Once deployed, open `http://localhost:8080` in your browser.
+Once deployed with the ingress in place, open `http://localhost:8081` in your browser or run:
 
-Alternatively, run `kubectl port-forward` to forward port for local testing. 
-
+```bash
+curl http://localhost:8081
+```
