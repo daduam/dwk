@@ -12,10 +12,27 @@ spec:
       labels:
         app: log-output
     spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
       containers:
-        - name: log-output
-          image: daduam/dwk-log-output
+        - name: log-output-writer
+          image: daduam/dwk-log-output-writer
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: logs
+              mountPath: /app/logs
           env:
+            - name: OUTPUT_FILE
+              value: /app/logs/output.log
+        - name: log-output-reader
+          image: daduam/dwk-log-output-reader
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: logs
+              mountPath: /app/logs
+          env:
+            - name: OUTPUT_FILE
+              value: /app/logs/output.log
             - name: PORT
               value: "8081"

@@ -1,18 +1,40 @@
 # log-output
 
-A simple HTTP server that returns a timestamp and a random UUID (generated on startup) on each request.
+Two-app sidecar setup:
 
-## Build, import, and deploy
+- **writer**: generates a random UUID on startup and appends `timestamp: uuid` lines to a file every 5 seconds.
+- **reader**: an HTTP server that serves the contents of that file on `GET /`.
 
-Build docker image with `docker build -t daduam/dwk-log-output .`
+Both containers share an `emptyDir` volume mounted at `/app/logs`, so the reader always sees the latest log written by the writer.
 
-Upload to k3d cluster with `k3d image import daduam/dwk-log-output`
+## Build
 
-Deploy with `kubectl apply -f manifests`
+```bash
+# writer
+cd writer
+docker build -t daduam/dwk-log-output-writer .
 
-## Access the app
+# reader
+cd reader
+docker build -t daduam/dwk-log-output-reader .
+```
 
-Once deployed with the ingress in place, open `http://localhost:8081` in your browser or run:
+## Import into k3d
+
+```bash
+k3d image import daduam/dwk-log-output-writer
+k3d image import daduam/dwk-log-output-reader
+```
+
+## Deploy
+
+```bash
+kubectl apply -f manifests/
+```
+
+## Access
+
+Once the ingress is in place, open `http://localhost:8081` or run:
 
 ```bash
 curl http://localhost:8081

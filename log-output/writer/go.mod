@@ -1,4 +1,4 @@
-module github.com/daduam/log-output
+module github.com/daduam/log-output-writer
 
 go 1.26.5
 
