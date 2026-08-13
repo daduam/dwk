@@ -5,23 +5,41 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync/atomic"
+	"strconv"
+	"strings"
+	"sync"
 )
 
 func main() {
-	var count atomic.Uint64
+	var mu sync.Mutex
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		prev := count.Load()
-		fmt.Fprintf(w, "pong %d", prev)
-		count.Add(1)
+	countFile := os.Getenv("REQUESTS_COUNT_FILE")
+	if countFile == "" {
+		countFile = "requests_count.txt"
+	}
+
+	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		defer mu.Unlock()
+
+		var n uint64
+		if data, err := os.ReadFile(countFile); err == nil {
+			if parsed, err := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64); err == nil {
+				n = parsed
+			}
+		}
+		n++
+		if err := os.WriteFile(countFile, []byte(strconv.FormatUint(n, 10)), 0o644); err != nil {
+			log.Printf("failed to write request count to %s: %v", countFile, err)
+		}
+		fmt.Fprintf(w, "pong %d\n", n)
 	})
 
-	log.Printf("Server started at port " + port)
+	log.Printf("Server started at port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

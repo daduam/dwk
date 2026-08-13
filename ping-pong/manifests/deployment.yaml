@@ -12,10 +12,26 @@ spec:
       labels:
         app: ping-pong
     spec:
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data-pvc
+      initContainers:
+        - name: fix-shared-data-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 65534:65534 /app/shared"]
+          volumeMounts:
+            - name: shared-data
+              mountPath: /app/shared
       containers:
         - name: ping-pong
           image: daduam/dwk-ping-pong
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: shared-data
+              mountPath: /app/shared
           env:
             - name: PORT
               value: "8081"
+            - name: REQUESTS_COUNT_FILE
+              value: /app/shared/requests_count.txt

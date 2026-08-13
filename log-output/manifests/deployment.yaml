@@ -15,6 +15,16 @@ spec:
       volumes:
         - name: logs
           emptyDir: {}
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data-pvc
+      initContainers:
+        - name: fix-shared-data-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 65534:65534 /app/shared"]
+          volumeMounts:
+            - name: shared-data
+              mountPath: /app/shared
       containers:
         - name: log-output-writer
           image: daduam/dwk-log-output-writer
@@ -31,8 +41,12 @@ spec:
           volumeMounts:
             - name: logs
               mountPath: /app/logs
+            - name: shared-data
+              mountPath: /app/shared
           env:
             - name: OUTPUT_FILE
               value: /app/logs/output.log
             - name: PORT
               value: "8081"
+            - name: REQUESTS_COUNT_FILE
+              value: /app/shared/requests_count.txt
