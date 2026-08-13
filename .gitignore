@@ -1,1 +1,4 @@
-
+# Build artifacts
+/ping-pong/ping-pong
+/log-output/reader/log-output-reader
+/log-output/writer/log-output-writer
