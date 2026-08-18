@@ -13,6 +13,7 @@ FROM scratch
 WORKDIR /app
 
 COPY --from=builder /app/todos .
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 USER 65534
 

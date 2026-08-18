@@ -12,10 +12,28 @@ spec:
       labels:
         app: the-project-todos
     spec:
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data-pvc
+      initContainers:
+        - name: fix-shared-data-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 65534:65534 /app/data"]
+          volumeMounts:
+            - name: shared-data
+              mountPath: /app/data
       containers:
         - name: the-project-todos
           image: daduam/dwk-the-project-todos
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: shared-data
+              mountPath: /app/data
           env:
             - name: PORT
               value: "8081"
+            - name: IMAGE_FILE
+              value: /app/data/image_file.jpg
+            - name: IMAGE_EXPIRY_TIMESTAMP_FILE
+              value: /app/data/image_expiry_timestamp_file.txt

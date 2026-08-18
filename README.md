@@ -15,3 +15,4 @@
 * [1.9. More services](https://github.com/daduam/dwk/tree/1.9/ping-pong)
 * [1.10. Even more services](https://github.com/daduam/dwk/tree/1.10/log-output)
 * [1.11. Persisting data](https://github.com/daduam/dwk/tree/1.11)
+* [1.12. The project, step 6](https://github.com/daduam/dwk/tree/1.12/the-project/todos)
