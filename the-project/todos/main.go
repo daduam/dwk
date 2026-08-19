@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -20,18 +22,18 @@ var (
 	imageMu     sync.Mutex
 )
 
+var indexTmpl *template.Template
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	var buf bytes.Buffer
+	if err := indexTmpl.Execute(&buf, nil); err != nil {
+		log.Printf("execute index template: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write([]byte(`
-<!DOCTYPE html>
-<html>
-<head><title>Todos</title></head>
-<body>
-<h1>Todos</h1>
-<img src="/image" alt="Image expiry status" style="max-width: 400px; height: auto;">
-<p>Welcome to the Todos app!</p>
-</body>
-</html>`))
+	buf.WriteTo(w)
 }
 
 func imageHandler(imageFile, imageExpiryTimestampFile string) http.HandlerFunc {
@@ -112,6 +114,12 @@ func parseTimestamp(s string) (time.Time, error) {
 }
 
 func main() {
+	var err error
+	indexTmpl, err = template.ParseFiles("templates/index.html")
+	if err != nil {
+		log.Fatalf("failed to parse templates: %v", err)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

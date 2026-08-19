@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todos</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#4CAF50',
+          'primary-dark': '#43A047',
+          surface: '#F5F5F5',
+          ink: '#333333',
+          muted: '#888888',
+        },
+        boxShadow: {
+          'card': '0 2px 4px rgba(0,0,0,0.05)',
+          'hero': '0 4px 12px rgba(0,0,0,0.1)',
+        },
+      },
+    },
+  }
+</script>
+</head>
+<body class="bg-white text-ink font-sans">
+<div class="max-w-[700px] mx-auto px-5">
+  <h1 class="text-[36px] font-bold text-center mb-10">Todo App</h1>
+  <img src="/image" alt="Daily inspiration"
+    class="block mx-auto w-[320px] h-[280px] object-cover rounded-[12px] shadow-hero">
+  <form onsubmit="return false;" class="flex justify-center gap-3 mt-[50px]">
+    <input type="text" id="todo-input" name="todo" maxlength="140" placeholder="Enter a new todo (max 140 characters)"
+      class="w-full max-w-[520px] h-[50px] px-4 border-2 border-primary rounded-[6px] text-base placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary">
+    <button type="submit"
+      class="h-[50px] px-6 bg-primary hover:bg-primary-dark text-white text-base font-medium rounded-[6px] cursor-pointer">Send</button>
+  </form>
+  <h2 class="text-[28px] font-bold mt-10 mb-5">Todos</h2>
+  <ul id="todo-list" class="flex flex-col gap-3">
+    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">Learn Kubernetes basics</li>
+    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">Deploy application to cluster</li>
+    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">Configure persistent volumes</li>
+  </ul>
+</div>
+</body>
+</html>
