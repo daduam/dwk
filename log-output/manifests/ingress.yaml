@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: log-output-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    traefik.ingress.kubernetes.io/router.middlewares: default-strip-pingpong@kubernetescrd
 spec:
   rules:
   - http:
