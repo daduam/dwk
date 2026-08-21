@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: the-project-todos-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: the-project-todos-backend
+  template:
+    metadata:
+      labels:
+        app: the-project-todos-backend
+    spec:
+      containers:
+        - name: the-project-todos-backend
+          image: daduam/dwk-the-project-todos-backend
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "8081"

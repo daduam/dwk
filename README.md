@@ -21,3 +21,4 @@
 ### Chapter 3: More building blocks
 
 * [2.1. Connecting pods](https://github.com/daduam/dwk/tree/2.1)
+* [2.2. The project, step 8](https://github.com/daduam/dwk/tree/2.2/the-project)

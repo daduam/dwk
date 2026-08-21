@@ -5,8 +5,8 @@ WORKDIR /app
 COPY go.mod go.sum* ./
 RUN go mod download && go mod verify
 
-COPY main.go ./
-RUN go build -ldflags="-s -w" -o todos main.go
+COPY *.go ./
+RUN go build -ldflags="-s -w" -o todos .
 
 FROM scratch
 

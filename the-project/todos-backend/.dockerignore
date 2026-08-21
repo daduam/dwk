@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# Editor / IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build artifacts
+todos-backend
+*.exe
+
+# Documentation
+README.md
+
+# Docker
+Dockerfile
+.dockerignore

@@ -30,18 +30,67 @@
   <h1 class="text-[36px] font-bold text-center mb-10">Todo App</h1>
   <img src="/image" alt="Daily inspiration"
     class="block mx-auto w-[320px] h-[280px] object-cover rounded-[12px] shadow-hero">
-  <form onsubmit="return false;" class="flex justify-center gap-3 mt-[50px]">
+  <form id="todo-form" class="flex justify-center gap-3 mt-[50px]">
     <input type="text" id="todo-input" name="todo" maxlength="140" placeholder="Enter a new todo (max 140 characters)"
       class="w-full max-w-[520px] h-[50px] px-4 border-2 border-primary rounded-[6px] text-base placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary">
     <button type="submit"
       class="h-[50px] px-6 bg-primary hover:bg-primary-dark text-white text-base font-medium rounded-[6px] cursor-pointer">Send</button>
   </form>
+  <div id="submit-error" class="hidden bg-red-100 text-red-700 border-l-4 border-red-500 rounded-[6px] px-5 py-4 text-lg mt-3"></div>
   <h2 class="text-[28px] font-bold mt-10 mb-5">Todos</h2>
+  {{if .Error}}
+  <div class="bg-red-100 text-red-700 border-l-4 border-red-500 rounded-[6px] px-5 py-4 text-lg mb-3">{{.Error}}</div>
+  {{end}}
   <ul id="todo-list" class="flex flex-col gap-3">
-    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">Learn Kubernetes basics</li>
-    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">Deploy application to cluster</li>
-    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">Configure persistent volumes</li>
+    {{range .Todos}}
+    <li class="bg-surface rounded-[6px] px-5 py-4 border-l-4 border-primary shadow-card text-lg">{{.Content}}</li>
+    {{end}}
   </ul>
 </div>
+<script>
+  const todoForm = document.getElementById('todo-form');
+  const todoInput = document.getElementById('todo-input');
+  const submitError = document.getElementById('submit-error');
+
+  function showSubmitError(message) {
+    submitError.textContent = message;
+    submitError.classList.remove('hidden');
+  }
+
+  todoForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    submitError.classList.add('hidden');
+
+    const content = todoInput.value.trim();
+    if (!content) {
+      showSubmitError('Todo cannot be empty.');
+      return;
+    }
+    if (content.length > 140) {
+      showSubmitError('Todo must be at most 140 characters.');
+      return;
+    }
+
+    const submitButton = todoForm.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    try {
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) {
+        submitButton.disabled = false;
+        showSubmitError('Failed to create todo. Please try again.');
+        return;
+      }
+      todoInput.value = '';
+      location.reload();
+    } catch {
+      submitButton.disabled = false;
+      showSubmitError('Failed to create todo. Please try again.');
+    }
+  });
+</script>
 </body>
 </html>

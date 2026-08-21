@@ -1,5 +1,11 @@
 # the-project/todos
 
+The todos app frontend: serves server-rendered HTML and the daily image.
+It depends on [the-project/todos-backend](../todos-backend) for the todo list.
+
+- The page fetches the todo list from the backend pod-to-pod via `TODO_API_URL` and renders it server-side.
+- The form submits to `/api/todos`, which the ingress routes to the backend's `POST /todos` (the `strip-api` middleware removes the `/api` prefix).
+
 ## Create the k3d cluster
 
 ```bash
@@ -15,11 +21,29 @@ This creates a cluster with two agent nodes:
 
 ## Build, import, and deploy
 
-Build docker image with `docker build -t daduam/dwk-the-project-todos .`
+Build both images:
 
-Upload to k3d cluster with `k3d image import daduam/dwk-the-project-todos`
+```bash
+docker build -t daduam/dwk-the-project-todos .
+cd ../todos-backend && docker build -t daduam/dwk-the-project-todos-backend .
+```
 
-Deploy with `kubectl apply -f manifests`
+Upload them to the k3d cluster:
+
+```bash
+k3d image import daduam/dwk-the-project-todos
+k3d image import daduam/dwk-the-project-todos-backend
+```
+
+Deploy the shared volume, the backend, and the frontend:
+
+```bash
+kubectl apply -f ../../manifests
+kubectl apply -f ../todos-backend/manifests
+kubectl apply -f manifests
+```
+
+The frontend requires `TODO_API_URL` to be set; the deployment manifest points it at `http://the-project-todos-backend-svc:1234`.
 
 ## Access the app
 
@@ -27,4 +51,14 @@ Once deployed with the ingress in place, open `http://localhost:8081` in your br
 
 ```bash
 curl http://localhost:8081
+```
+
+The todo list is rendered server-side from the backend API. Adding a todo posts to `/api/todos`, which the ingress routes to the backend.
+
+## Access the API directly
+
+The backend API is exposed under `/api` through the same ingress:
+
+```bash
+curl http://localhost:8081/api/todos
 ```

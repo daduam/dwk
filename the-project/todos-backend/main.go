@@ -1,0 +1,20 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	"os"
+)
+
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	http.HandleFunc("GET /todos", listTodosHandler)
+	http.HandleFunc("POST /todos", createTodoHandler)
+
+	log.Println("Server started in port " + port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
