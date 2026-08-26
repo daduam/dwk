@@ -16,6 +16,12 @@ spec:
       volumes:
         - name: logs
           emptyDir: {}
+        - name: log-output-cm-data
+          configMap:
+            name: log-output-cm
+            items:
+              - key: "information.txt"
+                path: "information.txt"
       containers:
         - name: log-output-writer
           image: daduam/dwk-log-output-writer
@@ -32,6 +38,9 @@ spec:
           volumeMounts:
             - name: logs
               mountPath: /app/logs
+            - name: log-output-cm-data
+              mountPath: "/config"
+              readOnly: true
           env:
             - name: OUTPUT_FILE
               value: /app/logs/output.log
@@ -39,3 +48,10 @@ spec:
               value: "8081"
             - name: PING_PONG_URL
               value: http://ping-pong-svc:3456
+            - name: INFORMATION_FILE
+              value: "/config/information.txt"
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-cm
+                  key: message

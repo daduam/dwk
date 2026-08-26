@@ -38,38 +38,33 @@ func fetchCount(client *http.Client, baseURL string) string {
 	return strconv.FormatUint(n, 10)
 }
 
-func logHandler(filePath string, client *http.Client, pingPongURL string) http.HandlerFunc {
+func logHandler(cfg Config, client *http.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := os.ReadFile(filePath)
+		info, err := os.ReadFile(cfg.InfoPath)
+		if err != nil {
+			log.Printf("Failed to read information file: %v", err)
+			http.Error(w, "Failed to read information file", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, "file content: %s\nenv variable: MESSAGE=%s\n", info, cfg.Message)
+
+		data, err := os.ReadFile(cfg.FilePath)
 		if err != nil {
 			log.Printf("Failed to read output file: %v", err)
 			http.Error(w, "Failed to read log file", http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintf(w, "%s\nPing / Pongs: %s\n", string(data), fetchCount(client, pingPongURL))
+		fmt.Fprintf(w, "%s\nPing / Pongs: %s\n", string(data), fetchCount(client, cfg.PingPongURL))
 	}
 }
 
 func main() {
-	filePath := os.Getenv("OUTPUT_FILE")
-	if filePath == "" {
-		filePath = "/app/logs/output.log"
-	}
-
-	pingPongURL := os.Getenv("PING_PONG_URL")
-	if pingPongURL == "" {
-		pingPongURL = "http://ping-pong-svc:3456"
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	cfg := loadConfig()
 
 	client := &http.Client{Timeout: 5 * time.Second}
 
-	http.HandleFunc("GET /{$}", logHandler(filePath, client, pingPongURL))
+	http.HandleFunc("GET /{$}", logHandler(cfg, client))
 
-	log.Printf("Server started at port %s, ping-pong base URL %s", port, pingPongURL)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Printf("Server started at port %s, ping-pong base URL %s", cfg.Port, cfg.PingPongURL)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
 }
