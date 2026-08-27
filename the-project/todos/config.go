@@ -10,6 +10,7 @@ type config struct {
 	ImageFile                string
 	ImageExpiryTimestampFile string
 	TodoAPIURL               string
+	PicsumURL                string
 }
 
 func loadConfig() (config, error) {
@@ -18,6 +19,7 @@ func loadConfig() (config, error) {
 		ImageFile:                envOrDefault("IMAGE_FILE", "./image_file.jpg"),
 		ImageExpiryTimestampFile: envOrDefault("IMAGE_EXPIRY_TIMESTAMP_FILE", "./image_expiry_timestamp_file.txt"),
 		TodoAPIURL:               os.Getenv("TODO_API_URL"),
+		PicsumURL:                envOrDefault("PICSUM_URL", "https://picsum.photos/1200"),
 	}
 	if cfg.TodoAPIURL == "" {
 		return config{}, errors.New("TODO_API_URL is required")

@@ -36,6 +36,8 @@ spec:
               value: "8081"
             - name: TODO_API_URL
               value: http://the-project-todos-backend-svc:1234
+            - name: PICSUM_URL
+              value: https://picsum.photos/1200
             - name: IMAGE_FILE
               value: /app/data/image_file.jpg
             - name: IMAGE_EXPIRY_TIMESTAMP_FILE

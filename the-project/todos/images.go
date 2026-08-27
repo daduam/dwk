@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-const picsumURL = "https://picsum.photos/1200"
-
 var (
 	imageClient = &http.Client{Timeout: 30 * time.Second}
 	imageMu     sync.Mutex
@@ -34,7 +32,7 @@ func imageExpired(imageFile, imageExpiryTimestampFile string) bool {
 	return time.Now().After(expiry)
 }
 
-func fetchImage(imageFile, imageExpiryTimestampFile string) error {
+func fetchImage(picsumURL, imageFile, imageExpiryTimestampFile string) error {
 	resp, err := imageClient.Get(picsumURL)
 	if err != nil {
 		return err

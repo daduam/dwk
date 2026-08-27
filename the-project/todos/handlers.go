@@ -41,7 +41,7 @@ func imageHandler(cfg config) http.HandlerFunc {
 		defer imageMu.Unlock()
 
 		if imageExpired(cfg.ImageFile, cfg.ImageExpiryTimestampFile) {
-			if err := fetchImage(cfg.ImageFile, cfg.ImageExpiryTimestampFile); err != nil {
+			if err := fetchImage(cfg.PicsumURL, cfg.ImageFile, cfg.ImageExpiryTimestampFile); err != nil {
 				log.Printf("failed to fetch image: %v", err)
 			}
 		}
