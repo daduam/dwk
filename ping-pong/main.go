@@ -1,65 +1,67 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
-	"sync"
+	"time"
 )
 
-func rootHandler(mu *sync.Mutex, countFile string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		mu.Lock()
-		defer mu.Unlock()
-
-		var n uint64
-		if data, err := os.ReadFile(countFile); err == nil {
-			if parsed, err := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64); err == nil {
-				n = parsed
-			}
-		}
-		n++
-		if err := os.WriteFile(countFile, []byte(strconv.FormatUint(n, 10)), 0o644); err != nil {
-			log.Printf("failed to write request count to %s: %v", countFile, err)
-		}
-		fmt.Fprintf(w, "pong %d\n", n)
-	}
+type app struct {
+	store *Store
 }
 
-func pingsHandler(mu *sync.Mutex, countFile string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		mu.Lock()
-		defer mu.Unlock()
-
-		var n uint64
-		if data, err := os.ReadFile(countFile); err == nil {
-			if parsed, err := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64); err == nil {
-				n = parsed
-			}
-		}
-		fmt.Fprintf(w, "%d\n", n)
+func (a *app) rootHandler(w http.ResponseWriter, r *http.Request) {
+	n, err := a.store.Increment(r.Context())
+	if err != nil {
+		log.Printf("GET /: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
 	}
+	fmt.Fprintf(w, "pong %d\n", n)
+}
+
+func (a *app) pingsHandler(w http.ResponseWriter, r *http.Request) {
+	n, err := a.store.Count(r.Context())
+	if err != nil {
+		log.Printf("GET /pings: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "%d\n", n)
 }
 
 func main() {
-	var mu sync.Mutex
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	countFile := os.Getenv("REQUESTS_COUNT_FILE")
-	if countFile == "" {
-		countFile = "requests_count.txt"
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL is required")
 	}
 
-	http.HandleFunc("GET /{$}", rootHandler(&mu, countFile))
-	http.HandleFunc("GET /pings", pingsHandler(&mu, countFile))
+	store, err := NewStore(context.Background(), dsn)
+	if err != nil {
+		log.Fatalf("connect to database: %v", err)
+	}
+	defer store.Close()
+
+	a := &app{store: store}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /{$}", a.rootHandler)
+	mux.HandleFunc("GET /pings", a.pingsHandler)
+
+	srv := &http.Server{
+		Addr:              ":" + port,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 
 	log.Printf("Server started at port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(srv.ListenAndServe())
 }
