@@ -17,6 +17,18 @@ spec:
         - name: the-project-todos-backend
           image: daduam/dwk-the-project-todos-backend
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
           env:
             - name: PORT
               value: "8081"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: DATABASE_URL

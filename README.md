@@ -27,3 +27,4 @@
 * [2.5. Documentation and ConfigMaps](https://github.com/daduam/dwk/tree/2.5/log-output)
 * [2.6. The project, step 10](https://github.com/daduam/dwk/tree/2.6/the-project)
 * [2.7. Stateful applications](https://github.com/daduam/dwk/tree/2.7/ping-pong)
+* [2.8. The project, step 11](https://github.com/daduam/dwk/tree/2.8/the-project)

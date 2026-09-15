@@ -9,7 +9,7 @@ It depends on [the-project/todos-backend](../todos-backend) for the todo list.
 ## Create the k3d cluster
 
 ```bash
-k3d cluster create dwk-cluster \
+k3d cluster create k3s-default \
   --agents 2 \
   --port 8082:30080@agent:0 \
   --port 8081:80@loadbalancer
@@ -21,26 +21,13 @@ This creates a cluster with two agent nodes:
 
 ## Build, import, and deploy
 
-Build both images:
+See [../README.md](../README.md) for the full sequence, which also deploys the
+backend and the database first. From this directory:
 
 ```bash
 docker build -t daduam/dwk-the-project-todos .
-cd ../todos-backend && docker build -t daduam/dwk-the-project-todos-backend .
-```
-
-Upload them to the k3d cluster:
-
-```bash
-k3d image import daduam/dwk-the-project-todos
-k3d image import daduam/dwk-the-project-todos-backend
-```
-
-Deploy the shared volume, the backend, and the frontend:
-
-```bash
-kubectl apply -f ../../manifests
-kubectl apply -f ../todos-backend/manifests
-kubectl apply -f manifests
+k3d image import daduam/dwk-the-project-todos -c k3s-default
+kubectl apply -f ../manifests/todos/
 ```
 
 The frontend requires `TODO_API_URL` to be set; the deployment manifest points it at `http://the-project-todos-backend-svc:1234`.

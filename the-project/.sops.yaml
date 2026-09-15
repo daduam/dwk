@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: postgres/secret(\.enc)?\.yaml$
+    encrypted_regex: "^(data|stringData)$"
+    age: age1c2mqdlakw6dk8w9eqeefmxtxzv84sygy28hjuct8rc98h42efckswtm63t
