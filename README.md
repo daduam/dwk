@@ -28,3 +28,4 @@
 * [2.6. The project, step 10](https://github.com/daduam/dwk/tree/2.6/the-project)
 * [2.7. Stateful applications](https://github.com/daduam/dwk/tree/2.7/ping-pong)
 * [2.8. The project, step 11](https://github.com/daduam/dwk/tree/2.8/the-project)
+* [2.9. The project, step 12](https://github.com/daduam/dwk/tree/2.9/the-project)

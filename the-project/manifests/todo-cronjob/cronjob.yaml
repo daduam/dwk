@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: the-project-todo-cronjob
+  namespace: project
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: todo-cronjob
+              image: curlimages/curl:8.22.0
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e
+                  url=$(curl -sS --max-time 15 -o /dev/null -w '%{redirect_url}' \
+                    https://en.wikipedia.org/wiki/Special:Random)
+                  case "$url" in
+                    //*) url="https:$url" ;;
+                  esac
+                  if [ -z "$url" ]; then
+                    echo "no redirect URL returned by Special:Random" >&2
+                    exit 1
+                  fi
+                  curl -sSf --max-time 15 -X POST "$TODO_API_URL/todos" \
+                    -H 'Content-Type: application/json' \
+                    -d "$(printf '{"content":"Read %s"}' "$url")"
+              env:
+                - name: TODO_API_URL
+                  value: http://the-project-todos-backend-svc:1234
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi

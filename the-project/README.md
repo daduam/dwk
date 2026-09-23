@@ -1,14 +1,15 @@
 # the-project
 
-The project app: a todo frontend, a todo backend, and the PostgreSQL database
-they share, running in the `project` namespace of the local k3d cluster. The
-ingress serves `/` from the frontend and `/api` from the backend, stripping the
-`/api` prefix.
+The project app: a todo frontend, a todo backend, an hourly CronJob that adds a
+random Wikipedia article to read, and the PostgreSQL database they share, running
+in the `project` namespace of the local k3d cluster. The ingress serves `/` from
+the frontend and `/api` from the backend, stripping the `/api` prefix.
 
 ```
 the-project/
 ├── manifests/            namespace, PV/PVC, ingress, strip-api middleware
 │   ├── postgres/         secret.enc.yaml, service.yaml, statefulset.yaml
+│   ├── todo-cronjob/     hourly CronJob that adds a random Wikipedia todo
 │   ├── todos/            frontend deployment and service
 │   └── todos-backend/    backend deployment and service
 ├── todos/                frontend source and Dockerfile
@@ -18,6 +19,9 @@ the-project/
 - **`todos/`** fetches the todo list from the backend pod-to-pod and renders it
   server-side on the `shared-data` volume's cached image.
 - **`todos-backend/`** serves `GET /todos` and `POST /todos`.
+- **the CronJob** (in `manifests/todo-cronjob/`) runs hourly, picks a random
+  Wikipedia article, and posts `Read <URL>` to the backend's `POST /todos`. It
+  needs no custom image: the script runs in stock `curlimages/curl`.
 
 ## Prerequisites
 
@@ -61,6 +65,8 @@ kubectl apply -f manifests/todos-backend/
 kubectl -n project rollout restart deployment/the-project-todos-backend
 kubectl -n project rollout status deployment/the-project-todos-backend --timeout=120s
 
+kubectl apply -f manifests/todo-cronjob/          # hourly random-Wikipedia todo
+
 docker build -t daduam/dwk-the-project-todos todos
 k3d image import daduam/dwk-the-project-todos -c k3s-default
 kubectl apply -f manifests/todos/
@@ -91,3 +97,6 @@ curl -X POST http://localhost:8081/api/todos \
   `postgres` and database `postgres`. `DATABASE_URL` must agree, and addresses a
   single pod rather than the service:
   `postgres://postgres:<password>@postgres-stset-0.postgres-svc.project:5432/postgres`.
+- The CronJob resolves `Special:Random` with curl's `%{redirect_url}` and posts
+  `Read <URL>` to `the-project-todos-backend-svc:1234`. Run it on demand with
+  `kubectl -n project create job --from=cronjob/the-project-todo-cronjob manual-1`.
