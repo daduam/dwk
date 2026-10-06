@@ -2,9 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"unicode/utf8"
 )
+
+const maxTodoLength = 140
 
 type app struct {
 	store *Store
@@ -31,13 +35,22 @@ func (a *app) listTodosHandler(w http.ResponseWriter, r *http.Request) {
 func (a *app) createTodoHandler(w http.ResponseWriter, r *http.Request) {
 	var req createTodoRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("POST /todos: rejected invalid request body: %v", err)
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 	if req.Content == "" {
+		log.Print("POST /todos: rejected empty todo")
 		http.Error(w, "content is required", http.StatusBadRequest)
 		return
 	}
+	if n := utf8.RuneCountInString(req.Content); n > maxTodoLength {
+		log.Printf("POST /todos: rejected todo, %d characters exceeds limit of %d: %q", n, maxTodoLength, req.Content)
+		http.Error(w, fmt.Sprintf("content must be at most %d characters", maxTodoLength), http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("POST /todos: received todo: %q", req.Content)
 
 	todo, err := a.store.Add(r.Context(), req.Content)
 	if err != nil {

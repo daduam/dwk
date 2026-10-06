@@ -31,9 +31,14 @@ spec:
                     echo "no redirect URL returned by Special:Random" >&2
                     exit 1
                   fi
-                  curl -sSf --max-time 15 -X POST "$TODO_API_URL/todos" \
+                  status=$(curl -sS --max-time 15 -o /tmp/todo-response -w '%{http_code}' \
+                    -X POST "$TODO_API_URL/todos" \
                     -H 'Content-Type: application/json' \
-                    -d "$(printf '{"content":"Read %s"}' "$url")"
+                    -d "$(printf '{"content":"Read %s"}' "$url")")
+                  echo "POST /todos -> HTTP $status: $(cat /tmp/todo-response)"
+                  if [ "$status" -ge 500 ]; then
+                    exit 1
+                  fi
               env:
                 - name: TODO_API_URL
                   value: http://the-project-todos-backend-svc:1234

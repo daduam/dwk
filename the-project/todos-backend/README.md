@@ -51,8 +51,24 @@ curl -X POST localhost:8090/todos \
   -d '{"content": "Write a README"}'
 ```
 
-Returns the created todo with status `201`. `content` is required, and malformed
-request bodies get `400 Bad Request`.
+Returns the created todo with status `201`. `content` is required and limited to
+140 characters (`utf8.RuneCountInString`, so characters rather than bytes, which
+agrees with the frontend's `maxlength="140"`). Malformed request bodies get
+`400 Bad Request`.
+
+## Logging
+
+The backend logs to stderr, which Alloy ships to Loki. Every request is logged
+with method, path and duration, and rejections carry a `rejected` marker:
+
+```
+request: POST /todos (3ms)
+POST /todos: received todo: "Write a README"
+POST /todos: rejected todo, 141 characters exceeds limit of 140: "aaa..."
+```
+
+Query them in Grafana's Loki datasource with
+`{namespace="project", container="the-project-todos-backend"}`.
 
 ## Schema
 

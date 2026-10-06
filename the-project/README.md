@@ -100,3 +100,10 @@ curl -X POST http://localhost:8081/api/todos \
 - The CronJob resolves `Special:Random` with curl's `%{redirect_url}` and posts
   `Read <URL>` to `the-project-todos-backend-svc:1234`. Run it on demand with
   `kubectl -n project create job --from=cronjob/the-project-todo-cronjob manual-1`.
+  If the URL exceeds the backend's 140-character limit the backend answers `400`;
+  the Job logs the status and response but only fails on `5xx`.
+- The backend logs every request plus the content of each accepted or rejected
+  todo to stderr. Grafana Alloy collects all pod logs into Loki, so they can be
+  queried in Grafana (`admin`/`admin`) under
+  `{namespace="project", container="the-project-todos-backend"}`, e.g.
+  `kubectl -n monitoring port-forward svc/grafana 3000:80`.
