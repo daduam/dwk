@@ -30,3 +30,7 @@
 * [2.8. The project, step 11](https://github.com/daduam/dwk/tree/2.8/the-project)
 * [2.9. The project, step 12](https://github.com/daduam/dwk/tree/2.9/the-project)
 * [2.10. The project, step 13](https://github.com/daduam/dwk/tree/2.10/the-project)
+
+### Chapter 4: To the cloud
+
+* [3.1. Pingpong GKE](https://github.com/daduam/dwk/tree/3.1/ping-pong)

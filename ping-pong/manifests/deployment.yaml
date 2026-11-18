@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: ping-pong
-          image: daduam/dwk-ping-pong
+          image: daduam0/dwk-ping-pong
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
